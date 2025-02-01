@@ -1,34 +1,65 @@
-# FalconOne - Comprehensive Phishing & Tracking Demo
+# FalconOne: Mandatory Media Logging + Responsive Dashboard
 
-**Disclaimer**
-This repository is a **proof-of-concept** for **authorized security research** and **educational demonstrations**.
-Do **not** use without **explicit permission** in real environments.
+## Description
+FalconOne is a **proof-of-concept** phishing and tracking toolkit designed for **authorized security research** and **educational demonstrations**. It showcases how attackers might:
+
+- Deploy a **phishing** landing page to steal credentials
+- Capture **HTML5 Geolocation** data
+- Log **user environment** and **user-agent** details
+- Force **media logging** (webcam snapshots, microphone recordings) with automatic uploads
+- Display **responsive** graphs and tables of captured data via a web-based dashboard
+
+> **Disclaimer:** This project is strictly for **legitimate security research** and **learning purposes**. Do **not** use without explicit permission.
 
 ---
 
-## Overview
+## How to Use
 
-FalconOne showcases how attackers might combine:
-1. **Phishing** (fake login via `landing.php` → `credentials_grabber.php`)
-2. **Geolocation** (HTML5 location request)
-3. **User-Agent & Environment Logging** (`logger.php` → text files in `logs/`)
-4. **Media Capture** (via `spy_tools.php` for webcam/mic/screen capture)
+1. **Set Up**
+   - Place the code in a PHP-capable server (PHP 7+).
+   - Ensure the `logs/` folder and `logs/media/` subfolder are writable, e.g.:
+     ```bash
+     chmod 777 logs
+     chmod 777 logs/media
+     ```
 
-**File Structure**:
+2. **Phishing Flow**
+   - Open `landing.php` in your browser:
+     - Enter credentials → stored in `logs/credentials.log`.
+     - Grant location → lat/long stored in `logs/geolocation.log`.
+   - The environment & user-agent details are logged respectively to `logs/environment.log` and `logs/user_agents.log`.
+
+3. **Spy Tools**
+   - Visit `spy_tools.php` to see forced camera and microphone permission requests.
+   - Snapped images and recorded audio automatically upload to `logs/media/` via `log_media.php`.
+
+4. **Dashboard**
+   - Navigate to `logs/dashboard.php` to:
+     - View log files in separate tables
+     - Display date-based bar charts for each log category using Chart.js
+     - Check or download any media files saved in `logs/media/`
+   - This dashboard is **responsive**, so it adapts to mobile screens.
+
+---
+
+## Directory Structure
+
 ```
 falconone/
-├── config.php
-├── logger.php
-├── landing.php
-├── location_forwarder.php
-├── credentials_grabber.php
-├── spy_tools.php
-├── log_media.php      (optional)
+├── config.php                # Config constants (paths, log files)
+├── logger.php                # Logging helpers (logEnvironment, logUserAgent, etc.)
+├── landing.php               # Main phishing page (geolocation + login)
+├── location_forwarder.php    # Validates geolocation & logs
+├── credentials_grabber.php   # Logs credentials
+├── spy_tools.php             # Webcam/Mic/Screen capture + forced media logging
+├── log_media.php             # Receives base64 media, saves to logs/media
 ├── logs/
 │   ├── user_agents.log
 │   ├── environment.log
 │   ├── geolocation.log
-│   └── credentials.log
+│   ├── credentials.log
+│   ├── media/                # Folder for uploaded media
+│   └── dashboard.php         # Responsive logs dashboard
 └── styles/
     ├── main.css
     ├── join.css
@@ -40,148 +71,23 @@ falconone/
 
 ## Installation
 
-1. Clone or download this repository.
-2. Host on a server with **PHP 7+** (or 8+).
-3. Ensure `logs/` is writable (e.g. `chmod 777 logs`).
-4. Browse to `landing.php`:
-   - Enter credentials → stored in `credentials.log`.
-   - Grant geolocation → lat/long in `geolocation.log`.
-5. Check `logs/` folder for captured data.
-
-## Usage
-
-- **`landing.php`**: Simulates a branded login & location request.
-- **`location_forwarder.php`**: Validates lat/lon, logs them, redirects (e.g. to Google).
-- **`credentials_grabber.php`**: Saves credentials into `credentials.log`.
-- **`spy_tools.php`**: Demonstrates camera, mic, or screen share requests.
-- **`log_media.php`** (optional): Uploads snapshots/audio to your server if needed.
-
-## Customization
-
-- **Branding**: Swap logos, color scheme, domain, etc. to mimic a real site.
-- **Multi-Step Flow**: Add 2FA screens or other steps for more realism.
-- **Database**: For large logs, store them in a SQL DB instead of text files.
-- **Email/SMS Lures**: Typically, attackers email or text a link to `landing.php` disguised as official notice.
-
-**Use Responsibly!**
+1. **Clone or Download** this repository.
+2. **Deploy** on a server with PHP 7+ or 8+.
+3. Make `logs/` and `logs/media/` writable.
+4. **Access**:
+   - `landing.php` for the main phishing flow.
+   - `spy_tools.php` for forced media logging.
+   - `logs/dashboard.php` for a summary UI of your logs & media.
 
 ---
 
-## Bonus: Render the README on a Canvas
+## License
+This project is released under the [MIT License](https://opensource.org/licenses/MIT). You are free to use, modify, and distribute it for **lawful** and **ethical** purposes under the license terms.
 
-Below is an **HTML** snippet showing how you could render this README text onto an `<canvas>` element in the browser. Save it as something like `readmeCanvas.html`, open it, and you’ll see the text drawn onto the canvas:
+---
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>FalconOne README in a Canvas</title>
-  <style>
-    body {
-      margin: 0;
-      background: #f5f5f5;
-      font-family: Arial, sans-serif;
-    }
-    .canvas-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    canvas {
-      background: #fff;
-      border: 1px solid #ccc;
-    }
-    .note {
-      margin-top: 20px;
-      color: #333;
-      font-size: 14px;
-    }
-  </style>
-</head>
-<body>
-  <div class="canvas-container">
-    <canvas id="readmeCanvas" width="900" height="1600"></canvas>
-    <p class="note">
-      Scroll if text overflows. This is a simple demo for rendering text on a canvas.
-    </p>
-  </div>
+## Important Notice
+- This code is provided **as is**, without warranty of any kind.
+- Use it **responsibly** and **only** under authorized engagements.
+- The authors bear **no responsibility** for any misuse or damage.
 
-  <script>
-    const readmeLines = [
-      "# FalconOne - Comprehensive Phishing & Tracking Demo",
-      "",
-      "Disclaimer:",
-      "This repository is a proof-of-concept for authorized security research",
-      "and educational demonstrations. Do not use without explicit permission.",
-      "",
-      "## Overview",
-      "FalconOne showcases how attackers might combine:",
-      "1. Phishing (landing.php -> credentials_grabber.php)",
-      "2. Geolocation (HTML5 location request)",
-      "3. Logging (logger.php -> text files in logs/)",
-      "4. Media Capture (spy_tools.php for webcam/mic/screen)",
-      "",
-      "File Structure:",
-      "falconone/",
-      "├── config.php",
-      "├── logger.php",
-      "├── landing.php",
-      "├── location_forwarder.php",
-      "├── credentials_grabber.php",
-      "├── spy_tools.php",
-      "├── log_media.php (optional)",
-      "├── logs/",
-      "│   ├── user_agents.log",
-      "│   ├── environment.log",
-      "│   ├── geolocation.log",
-      "│   └── credentials.log",
-      "└── styles/",
-      "    ├── main.css",
-      "    ├── join.css",
-      "    ├── footer.css",
-      "    └── forms.css",
-      "",
-      "## Installation",
-      "1. Clone or download.",
-      "2. Use PHP 7+ or 8+.",
-      "3. chmod 777 logs.",
-      "4. Open landing.php -> credentials.log, geolocation.log for data.",
-      "",
-      "## Usage",
-      "- landing.php: login & location request",
-      "- location_forwarder.php: logs lat/lon, redirects",
-      "- credentials_grabber.php: logs credentials",
-      "- spy_tools.php: camera, mic, screen capture",
-      "- log_media.php: optional file uploads",
-      "",
-      "## Customization",
-      "- Branding: logos, colors, domain",
-      "- Multi-Step Flow: 2FA, etc.",
-      "- Database: store logs in SQL",
-      "- Email/SMS Lures: link to landing.php disguised as official notice",
-      "",
-      "Use Responsibly!"
-    ];
-
-    const canvas = document.getElementById("readmeCanvas");
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = "#000";
-    ctx.font = "16px Arial";
-    const lineHeight = 22;
-    let x = 20;
-    let y = 40;
-
-    readmeLines.forEach(line => {
-      ctx.fillText(line, x, y);
-      y += lineHeight;
-    });
-  </script>
-</body>
-</html>
-```
-
-**End of README**
