@@ -23,7 +23,7 @@
     z-index: 2;
     opacity: 0;
     animation: opacity 700ms forwards;
-    color: #000; /* override default white text */
+    color: #000;
 }
 
 h1.join__heading {
@@ -134,7 +134,6 @@ h2.join__heading {
     color: #fff;
 }
 
-/* Media queries */
 @media (max-width: 768px) {
     .join__container {
         grid-template-columns: 1fr;
